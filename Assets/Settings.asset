@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46b77ad6eb1cd4951b8ebc12d6c180cc, type: 3}
+  m_Name: Settings
+  m_EditorClassIdentifier: 
+  mapGenerator:
+    x: 10
+    z: 6
+    x_dif: 13
+    z_dif: 15
+  hexView:
+    free: {r: 1, g: 0.20588237, b: 0.20588237, a: 1}
+    occupied: {r: 0.3323962, g: 0.3539762, b: 0.7794118, a: 1}
+    readyToBeOccupied: {r: 0.4759948, g: 0.623255, b: 0.9117647, a: 1}
