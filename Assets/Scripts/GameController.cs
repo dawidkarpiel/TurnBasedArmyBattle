@@ -159,26 +159,26 @@ public class GameController : MonoBehaviour {
 		map.map[activeUnit.position].state = TileState.free;
 		map.map[activeUnit.position].unitOnTile = null;
 		
-		activeUnit.Move(map.getTilePosition(position));
+		activeUnit.Move(map.getTilePosition(position), toTile.distanceToActiveUnit);
 		activeUnit.position = position;
 
 		toTile.state = TileState.occupied;
 		toTile.unitOnTile = activeUnit;
 
-		map.HideFreeSpaces();
+		map.ShowRange(activeUnit.position);
 	}
 
 	void PositionSoldier(Vector2 position)
 	{
 		var tile = map.map[position];
-		activeUnit.Move(map.getTilePosition(position));
+		activeUnit.Move(map.getTilePosition(position), 0);
 		activeUnit.position = position;
 		activeUnit.hasBeenAlreadySelected = true;
 
 		tile.state = TileState.occupied;
 		tile.unitOnTile = activeUnit;
 
-		map.HideFreeSpaces();
+		map.ClearTiles();
 		PositionArmies();
 	}
 
@@ -213,7 +213,7 @@ public class GameController : MonoBehaviour {
 		if(activeUnit.isAlive())
 		{
 			activeUnit.Activate();
-			map.ShowFreeSpaces(activeUnit.position);
+			map.ShowRange(activeUnit.position);
 		}
 	}
 
@@ -275,7 +275,7 @@ public class GameController : MonoBehaviour {
 		teamList.Remove(unit);
 		Destroy(unit.gameObject);
 
-		map.HideFreeSpaces();
+		map.ClearTiles();
 
 		Debug.Log("killed");
 	}	

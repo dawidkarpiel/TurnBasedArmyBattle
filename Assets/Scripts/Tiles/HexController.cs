@@ -28,6 +28,8 @@ public class HexController : MonoBehaviour
 			view.RefreshView(_state);
 		}
 	}
+	
+	public int distanceToActiveUnit;
 
 	MapController map;
 

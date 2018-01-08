@@ -20,53 +20,91 @@ public class MapController: MonoBehaviour
 		this.generator = generator;
 	}
 
-	public void ShowFreeSpaces(Vector2 basePosition)
+	public void ShowRange(Vector2 basePosition)
 	{
-		HideFreeSpaces();
+		ClearTiles();
+
+		map[basePosition].distanceToActiveUnit = 0;
+		ShowSpaces(basePosition);
+	}
+
+	void ShowSpaces(Vector2 basePosition)
+	{
+		var unit = map[basePosition].unitOnTile;
+		int walkRange = unit.moves;
+		int attackRange = unit.attackRange;
+
+		for(int i =0; i < walkRange+attackRange; i++)
+		{
+			foreach(KeyValuePair<Vector2,HexController> tile in map)
+			{
+				if(tile.Value.distanceToActiveUnit != i)
+					continue;
+				
+				IncreaseDistanceOnNeighbouringTiles(tile.Key);
+			}
+		}		
+		
+		
 		foreach(KeyValuePair<Vector2,HexController> tile in map)
 		{
-			TileState state = tile.Value.state;
-			if(tile.Key.x == basePosition.x)
-			{
-				if(tile.Key.y == basePosition.y || tile.Key.y == basePosition.y -1  || tile.Key.y == basePosition.y + 1)
-				{
-					state = TileState.readyToBeOccupied;
-				}
-			}
-			else if(tile.Key.x == basePosition.x - 1 || tile.Key.x == basePosition.x + 1)
-			{
-				if(tile.Key.x % 2 == 0)
-				{
-					if(tile.Key.y == basePosition.y || tile.Key.y == basePosition.y - 1)
-					{
-						state = TileState.readyToBeOccupied;
-					}
-				}
-				else
-				{
-					if(tile.Key.y == basePosition.y || tile.Key.y == basePosition.y + 1)
-					{
-						state = TileState.readyToBeOccupied;
-					}
-				}
-			}
-
-			if(tile.Value.state == TileState.occupied && tile.Value.unitOnTile.team != map[basePosition].unitOnTile.team && state == TileState.readyToBeOccupied)
-				state = TileState.inAttackRange;
-			else if(tile.Value.state == TileState.occupied)
-				state = TileState.occupied;
-
-			if(tile.Key == basePosition)
-				state = TileState.active;
-
-			tile.Value.state = state;
+			var distance = tile.Value.distanceToActiveUnit;
+			if(distance == 0)
+				tile.Value.state = TileState.active;
+			else if(distance == -1 && tile.Value.state == TileState.occupied)
+				tile.Value.state = TileState.occupied;
+			else if(distance == -1)
+				tile.Value.state = TileState.free;
+			else if(tile.Value.state == TileState.occupied && tile.Value.unitOnTile.team != map[basePosition].unitOnTile.team && distance <= attackRange+walkRange)
+				tile.Value.state = TileState.inAttackRange;
+			else if(distance <= walkRange)
+				tile.Value.state = TileState.readyToBeOccupied;
 		}
 	}
 
-	public void HideFreeSpaces()
+	void IncreaseDistanceOnNeighbouringTiles(Vector2 basePosition)
+	{
+		int baseDistance = map[basePosition].distanceToActiveUnit;
+
+		foreach(KeyValuePair<Vector2,HexController> tile in map)
+		{
+
+			if(tile.Value.distanceToActiveUnit == -1)
+			{	
+				if(tile.Key.x == basePosition.x)
+				{
+					if(tile.Key.y == basePosition.y || tile.Key.y == basePosition.y -1  || tile.Key.y == basePosition.y + 1)
+					{
+						tile.Value.distanceToActiveUnit = baseDistance + 1;
+					}
+				}
+				else if(tile.Key.x == basePosition.x - 1 || tile.Key.x == basePosition.x + 1)
+				{
+					if(tile.Key.x % 2 == 0)
+					{
+						if(tile.Key.y == basePosition.y || tile.Key.y == basePosition.y - 1)
+						{
+							tile.Value.distanceToActiveUnit = baseDistance + 1;
+						}
+					}
+					else
+					{
+						if(tile.Key.y == basePosition.y || tile.Key.y == basePosition.y + 1)
+						{
+							tile.Value.distanceToActiveUnit = baseDistance + 1;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public void ClearTiles()
 	{
 		foreach(KeyValuePair<Vector2,HexController> tile in map)
 		{
+			tile.Value.distanceToActiveUnit = -1;
+
 			if(tile.Value.unitOnTile != null)
 				tile.Value.state = TileState.occupied;
 			else

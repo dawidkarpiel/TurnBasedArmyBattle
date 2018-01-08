@@ -922,8 +922,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hp: 4
-  damage: 0
+  damage: 3
+  attackRange: 1
   position: {x: 0, y: 0}
-  possibleMoves: 0
+  walkRange: 2
   hasBeenAlreadySelected: 0
+  moves: 0
   team: 1

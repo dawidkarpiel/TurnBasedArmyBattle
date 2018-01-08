@@ -6,21 +6,13 @@ public class Unit: MonoBehaviour{
 
 	public float hp;
 	public int damage;
+	public int attackRange;
 	public Vector2 position;
-	public int possibleMoves;
+	public int walkRange;
 	public bool hasBeenAlreadySelected = false;
-	public bool hasMoved
-	{
-		get
-		{
-			if(moves >= possibleMoves)
-				return true;
-			else
-				return false;
-		}
-	}
+	
 	GameController controller;
-	int moves;
+	public int moves;
 
 	public Team team;
 
@@ -41,11 +33,14 @@ public class Unit: MonoBehaviour{
 
 	public void Activate()
 	{
-		moves = 0;
+		moves = walkRange;
+		Debug.Log("activate" + moves);
+
 	} 
 
-	public void Move(Vector3 position)
+	public void Move(Vector3 position, int distance)
 	{
+		moves -= distance;
 		StartCoroutine(moveLerp(position));
 	}
 
