@@ -343,6 +343,7 @@ GameObject:
   m_Component:
   - component: {fileID: 400044}
   - component: {fileID: 9500000}
+  - component: {fileID: 114356480361704450}
   m_Layer: 0
   m_Name: FreeGolem
   m_TagString: Untagged
@@ -663,7 +664,7 @@ Transform:
   m_GameObject: {fileID: 100044}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 5, y: 5, z: 5}
   m_Children:
   - {fileID: 400042}
   - {fileID: 400040}
@@ -820,3 +821,20 @@ Prefab:
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 100044}
   m_IsPrefabParent: 1
+--- !u!114 &114356480361704450
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9565053ccf3014d6aac2ede18f3d7749, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hp: 4
+  damage: 0
+  position: {x: 0, y: 0}
+  possibleMoves: 0
+  hasBeenAlreadySelected: 0
+  team: 0

@@ -8,8 +8,6 @@ public class UI : MonoBehaviour
 
 	public GameController gameController;
 
-	public Slider teamSize;
-
 	public Slider redTeamUnit1;
 
 	public Slider redTeamUnit2;
@@ -20,7 +18,16 @@ public class UI : MonoBehaviour
 
 	public Slider mapSize_x;
 	public Slider mapSize_y;
+
+	public GameObject settingsPanel;
+	public GameObject gameplayPanel;
 	
+	
+	void Start()
+	{
+		settingsPanel.SetActive(true);
+		gameplayPanel.SetActive(false);
+	}
 
 	public void StartGame()
 	{
@@ -34,18 +41,13 @@ public class UI : MonoBehaviour
 		gameController.mapSize.y = (int)mapSize_y.value;
 
 		gameController.InitializeGameplay();
+
+		settingsPanel.SetActive(false);
+		gameplayPanel.SetActive(true);
 	}
 
 	public void NextTurn()
 	{
 		gameController.NextTurn();
 	}
-
-	public void CheckMaxSliderValues()
-	{
-		
-	}
-
-
-
 }
