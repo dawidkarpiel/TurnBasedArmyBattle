@@ -50,7 +50,7 @@ public class GameController : MonoBehaviour {
 		blueArmy = new List<Unit>();
 		AddFootmans(blueArmy, redTeamFootmans);
 		AddGolems(blueArmy, redTeamGolems);
-		SetTeam(blueArmy, Team.blue);
+		SetTeam(blueArmy, Team.red);
 	}
 
 	void AddFootmans(List<Unit> team, int count)
@@ -90,58 +90,86 @@ public class GameController : MonoBehaviour {
 	void StartGame()
 	{
 		activeTeam = Team.blue;
+		PositionArmies();
+	}
+	
+	void PositionArmies()
+	{
+		if(!areArmyPositioned)
+		{
+			if(activeTeam == Team.red)
+			{
+				activeTeam = Team.blue;
+				GetFirstNotUsedUnit(blueArmy);
+			}
+			else
+			{
+				activeTeam = Team.red;
+				GetFirstNotUsedUnit(redArmy);
+			}
+
+			if(activeUnit == null)
+			{
+				areArmyPositioned = true;
+				Turn();
+			}
+			else
+			{
+				EnablePositionArmies();
+			}
+		}
+		else
+			Turn();
+	}
+
+	void EnablePositionArmies()
+	{
+		if(activeTeam == Team.red)
+			{
+				map.EnableAllRows(0);
+				map.EnableAllRows(1);
+			}
+			else
+			{
+				map.EnableAllRows((int)mapSize.x - 1);
+				map.EnableAllRows((int)mapSize.x - 2);
+			}
 	}
 
 	public void TileClicked(Vector2 position)
 	{
-		if(!areArmyPositioned)
+		var tile = map.map[position];
+
+		if(!areArmyPositioned && tile.state == TileState.readyToBeOccupied)
 		{
 			PositionSoldier(position);
 		}
-
-		var tile = map.map[position];
-		if(activeUnit != null && tile.state == TileState.readyToBeOccupied)
+		else if(activeUnit != null && tile.state == TileState.readyToBeOccupied)
 		{
-			map.map[activeUnit.position].state = TileState.free;
-			map.map[activeUnit.position].unitOnTile = null;
-			
-			activeUnit.Move(map.getTilePosition(position));
-			activeUnit.position = position;
-
-			tile.state = TileState.occupied;
-			tile.unitOnTile = activeUnit;
-
-			map.HideFreeSpaces();
+			ChangeUnitPosition(tile, position);
 		}
-
-		if(activeUnit != null && tile.state == TileState.inAttackRange)
+		else if(activeUnit != null && tile.state == TileState.inAttackRange)
 		{
-			tile.unitOnTile.DealDamage(activeUnit.damage);
-			if(!tile.unitOnTile.isAlive())
-				UnitKilled(tile.unitOnTile);
+			AttackPosition(tile);
 		}
+	}
+	
+	void ChangeUnitPosition(HexController toTile, Vector2 position)
+	{
+		map.map[activeUnit.position].state = TileState.free;
+		map.map[activeUnit.position].unitOnTile = null;
+		
+		activeUnit.Move(map.getTilePosition(position));
+		activeUnit.position = position;
+
+		toTile.state = TileState.occupied;
+		toTile.unitOnTile = activeUnit;
+
+		map.HideFreeSpaces();
 	}
 
 	void PositionSoldier(Vector2 position)
 	{
-		if(activeTeam == Team.red)
-		{
-			activeTeam = Team.blue;
-			GetFirstNotUsedUnit(blueArmy);
-		}
-		else
-		{
-			activeTeam = Team.red;
-			GetFirstNotUsedUnit(redArmy);
-		}
-
-		if(activeUnit == null)
-		{
-			areArmyPositioned = true;
-			Turn();
-			return;
-		}
-
 		var tile = map.map[position];
 		activeUnit.Move(map.getTilePosition(position));
 		activeUnit.position = position;
@@ -151,10 +179,14 @@ public class GameController : MonoBehaviour {
 		tile.unitOnTile = activeUnit;
 
 		map.HideFreeSpaces();
+		PositionArmies();
 	}
 
 	public void Turn()
 	{
+		if(!areArmyPositioned)
+			return;
+
 		if(activeUnit != null)
 			activeUnit.hasBeenAlreadySelected = true;
 
@@ -174,6 +206,9 @@ public class GameController : MonoBehaviour {
 	void NextTurn(List<Unit> army)
 	{
 		GetFirstNotUsedUnit(army);
+
+		if(activeUnit == null)
+			NewTurn(army);
 
 		if(activeUnit.isAlive())
 		{
@@ -195,9 +230,10 @@ public class GameController : MonoBehaviour {
 			}
 		}
 
-		if(activeUnit == null)
-			NewTurn(team);
-
+		if(!areArmyPositioned && activeUnit == null)
+		{
+			return;
+		}
 	}
 
 	void NewTurn(List<Unit> team)
@@ -215,17 +251,33 @@ public class GameController : MonoBehaviour {
 		GetFirstNotUsedUnit(team);
 	}
 
+	void AttackPosition(HexController tile)
+	{
+		tile.unitOnTile.DealDamage(activeUnit.damage);
+
+		if(!tile.unitOnTile.isAlive())
+			UnitKilled(tile.unitOnTile);
+
+		Debug.Log("attack");
+	}
+
 	void UnitKilled(Unit unit)
 	{
 		List<Unit> teamList;
+
 		if(unit.team == Team.red)
 			teamList = redArmy;
 		else
 			teamList = blueArmy;
 
+		map.map[unit.position].unitOnTile = null;
+
 		teamList.Remove(unit);
 		Destroy(unit.gameObject);
+
 		map.HideFreeSpaces();
+
+		Debug.Log("killed");
 	}	
 }
 public enum Team
