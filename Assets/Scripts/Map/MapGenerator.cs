@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
 {
-	public int size_x;
-	public int size_y;
 	public float x_dif;
 	public float y_dif;	
 	public GameObject hex;
@@ -13,13 +11,13 @@ public class MapGenerator : MonoBehaviour
 	public MapController controller;
 	
 	
-	public Dictionary<Vector2, HexController> GenerateMap()
+	public Dictionary<Vector2, HexController> GenerateMap(Vector2 size)
 	{
 		Dictionary<Vector2, HexController> map = new Dictionary<Vector2, HexController>();
 
-		for(int i = 0; i < size_x; i++)
+		for(int i = 0; i < size.x; i++)
 		{
-			for(int j = 0; j < size_y; j++)
+			for(int j = 0; j < size.y; j++)
 			{
 				Vector3 position = new Vector3();
 

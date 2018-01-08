@@ -9,10 +9,10 @@ public class MapController: MonoBehaviour
 
 	public Dictionary<Vector2, HexController> map;
 
-	public void GetMap()
+	public void GetMap(Vector2 size)
 	{
 		map = new Dictionary<Vector2, HexController>();
-		map = generator.GenerateMap();
+		map = generator.GenerateMap(size);
  	}
 
 	public void SetGenerator(MapGenerator generator)
@@ -84,10 +84,4 @@ public class MapController: MonoBehaviour
 	{
 		controller.TileClicked(position);
 	}
-
-	public Vector2 GetMapSize()
-	{
-		return new Vector2(generator.size_x - 1, generator.size_y - 1);
-	}
-	
 }

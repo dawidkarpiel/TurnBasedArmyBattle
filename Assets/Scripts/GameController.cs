@@ -4,69 +4,86 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour {
 
-	public List<Unit> blueTeam;
-	public List<Unit> redTeam;
+	List<Unit> blueTeam;
+	List<Unit> redTeam;
 
-	public GameObject footmanPrefab;
-	public GameObject golemPrefab;
+	[SerializeField]
+	GameObject footmanPrefab;
+	[SerializeField]
+	GameObject golemPrefab;
 
 	public MapController map;
 
-	public int teamsSize;
-	public Team activeTeam;
+	Team activeTeam;
 
 	Unit activeUnit;
 
-	int turn;
+
+	public int blueTeamFootmans = 0;
+	public int blueTeamGolems = 0;
+
+	public int redTeamFootmans = 0;
+	public int redTeamGolems = 0;
+
+	public Vector2 mapSize;
+
+	public void InitializeGameplay()
+	{
+		// map.GetMap(mapSize);
+		// for(int i = 0; i <= blueTeamFootmans; i++)
+		// {
+		// 	InitializeUnits(footmanPrefab, Team.blue);
+		// }
+	}
+
+	public void InitializeUnits(GameObject unit, Team team)
+	{
+		// Vector2 map_position;
+
+		// if(team == Team.red)
+		// {
+		// 	map_position = mapSize;
+		// }
+		// else	
+		// {
+		// 	map_position = Vector2.zero;
+		// }
+
+		// Vector3 position = map.getTilePosition(new Vector2(map_position.x, teamList.Count));
+		// GameObject instantiatedPrefab = Instantiate(unit, position, Quaternion.identity, this.transform);
+		// Unit military = instantiatedPrefab.GetComponent<Unit>();
+		// military.team = team;
+
+		// military.position = new Vector2(map_position.x, teamList.Count);
+		// map.map[new Vector2(map_position.x, teamList.Count)].state = TileState.occupied;
+		// map.map[new Vector2(map_position.x, teamList.Count)].unitOnTile = military;
+
+		// return military; 
+	}
 	
 	public void AddUnit(bool isRedTeam, bool isFootman)
 	{
-		GameObject unit;
-		List<Unit> teamList;
-		Team team;
-		Vector2 map_position;
+	// 	GameObject unit;
+	// 	List<Unit> teamList;
+	// 	Team team;
+	// 	Vector2 map_position;		
 
-		if(isFootman)
-			unit = footmanPrefab;
-		else
-			unit = golemPrefab;
+	// 	Vector3 position = map.getTilePosition(new Vector2(map_position.x, teamList.Count));
+	// 	GameObject instantiatedPrefab = Instantiate(unit, position, Quaternion.identity, this.transform);
 
-		if(isRedTeam)
-		{
-			teamList = redTeam;
-			team = Team.red;
-			map_position = map.GetMapSize();
-		}
-		else	
-		{
-			teamList = blueTeam;
-			team = Team.blue;
-			map_position = Vector2.zero;
-		}		
-
-		Vector3 position = map.getTilePosition(new Vector2(map_position.x, teamList.Count));
-		GameObject instantiatedPrefab = Instantiate(unit, position, Quaternion.identity, this.transform);
-
-		Unit military = instantiatedPrefab.GetComponent<Unit>();
-		military.team = team;
-		military.position = new Vector2(map_position.x, teamList.Count);
-		map.map[new Vector2(map_position.x, teamList.Count)].state = TileState.occupied;
-		map.map[new Vector2(map_position.x, teamList.Count)].unitOnTile = military;
+	// 	Unit military = instantiatedPrefab.GetComponent<Unit>();
+	// 	military.team = team;
+	// 	military.position = new Vector2(map_position.x, teamList.Count);
+	// 	map.map[new Vector2(map_position.x, teamList.Count)].state = TileState.occupied;
+	// 	map.map[new Vector2(map_position.x, teamList.Count)].unitOnTile = military;
 
 
-		teamList.Add(military);
-		CheckAreTeamsFull();
+	// 	teamList.Add(military);
 	}
 
-	public void CheckAreTeamsFull()
-	{
-		if(redTeam.Count == teamsSize && blueTeam.Count == teamsSize)
-			StartGame();
-	}
-
+	
 	public void StartGame()
 	{
-		turn = 0;
 		activeTeam = Team.blue;
 		NextTurn();
 	}
