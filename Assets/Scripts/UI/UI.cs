@@ -48,6 +48,6 @@ public class UI : MonoBehaviour
 
 	public void NextTurn()
 	{
-		gameController.NextTurn();
+		gameController.Turn();
 	}
 }

@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour {
 
-	List<Unit> blueTeam;
-	List<Unit> redTeam;
+	List<Unit> blueArmy;
+	List<Unit> redArmy;
 
 	[SerializeField]
 	GameObject footmanPrefab;
@@ -27,113 +27,153 @@ public class GameController : MonoBehaviour {
 
 	public Vector2 mapSize;
 
+	bool areArmyPositioned = false;
+
 	public void InitializeGameplay()
 	{
 		map.GetMap(mapSize);
-		blueTeam = new List<Unit>();
-		redTeam = new List<Unit>();
-		for(int i = 0; i < blueTeamFootmans; i++)
-		{
-			AddUnit(false, true);
-		}
-		for(int i = 0; i < blueTeamGolems; i++)
-		{
-			AddUnit(false, false);
-		}
-
-		for(int i = 0; i < redTeamFootmans; i++)
-		{
-			AddUnit(true, true);
-		}
-		for(int i = 0; i < redTeamGolems; i++)
-		{
-			AddUnit(true, false);
-		}
-
+		AddRedTeamUnits();
+		AddBlueTeamUnits();
 		StartGame();
 	}
 	
-	public void AddUnit(bool isRedTeam, bool isFootman)
+	void AddRedTeamUnits()
 	{
-		GameObject unit;
-		List<Unit> teamList;
-		Team team;
-		Vector2 map_position;
+		redArmy = new List<Unit>();
+		AddFootmans(redArmy, redTeamFootmans);
+		AddGolems(redArmy, redTeamGolems);
+		SetTeam(redArmy, Team.blue);
+	}
 
-		if(isFootman)
-			unit = footmanPrefab;
-		else
-			unit = golemPrefab;
+	void AddBlueTeamUnits()
+	{
+		blueArmy = new List<Unit>();
+		AddFootmans(blueArmy, redTeamFootmans);
+		AddGolems(blueArmy, redTeamGolems);
+		SetTeam(blueArmy, Team.blue);
+	}
 
-		if(isRedTeam)
+	void AddFootmans(List<Unit> team, int count)
+	{
+		for(int i =0; i< count; i++)
 		{
-			teamList = redTeam;
-			team = Team.red;
-			map_position = mapSize - Vector2.one;
+			AddUnit(team, footmanPrefab);
 		}
-		else	
+	}
+
+	void AddGolems(List<Unit> team, int count)
+	{
+		for(int i =0; i< count; i++)
 		{
-			teamList = blueTeam;
-			team = Team.blue;
-			map_position = Vector2.zero;
-		}		
+			AddUnit(team, golemPrefab);
+		}
+	}
+	
+	void AddUnit(List<Unit> team, GameObject prefab)
+	{
+		GameObject pooledPrefab = Instantiate(prefab, new Vector3(-100, -100, -100), Quaternion.identity, this.transform);
 
-		Vector3 position = map.getTilePosition(new Vector2(map_position.x, teamList.Count));
-		GameObject instantiatedPrefab = Instantiate(unit, position, Quaternion.identity, this.transform);
+		Unit military = pooledPrefab.GetComponent<Unit>();
 
-		Unit military = instantiatedPrefab.GetComponent<Unit>();
-		military.team = team;
-		military.position = new Vector2(map_position.x, teamList.Count);
-		map.map[new Vector2(map_position.x, teamList.Count)].state = TileState.occupied;
-		map.map[new Vector2(map_position.x, teamList.Count)].unitOnTile = military;
+		team.Add(military);
+	}
 
-
-		teamList.Add(military);
+	void SetTeam(List<Unit> army, Team team)
+	{
+		foreach(Unit soldier in army)
+		{
+			soldier.team = team;
+		}
 	}
 
 	
-	public void StartGame()
+	void StartGame()
 	{
 		activeTeam = Team.blue;
-		NextTurn();
 	}
 
 	public void TileClicked(Vector2 position)
 	{
-		if(activeUnit != null && map.map[position].state == TileState.readyToBeOccupied)
+		if(!areArmyPositioned)
+		{
+			PositionSoldier(position);
+		}
+
+		var tile = map.map[position];
+		if(activeUnit != null && tile.state == TileState.readyToBeOccupied)
 		{
 			map.map[activeUnit.position].state = TileState.free;
 			map.map[activeUnit.position].unitOnTile = null;
+			
 			activeUnit.Move(map.getTilePosition(position));
 			activeUnit.position = position;
-			map.map[position].state = TileState.occupied;
-			map.map[position].unitOnTile = activeUnit;
+
+			tile.state = TileState.occupied;
+			tile.unitOnTile = activeUnit;
+
 			map.HideFreeSpaces();
 		}
 
-		if(activeUnit != null && map.map[position].state == TileState.inAttackRange)
+		if(activeUnit != null && tile.state == TileState.inAttackRange)
 		{
-			map.map[position].unitOnTile.DealDamage(activeUnit.damage);
-			if(!map.map[position].unitOnTile.isAlive())
-				UnitKilled(map.map[position].unitOnTile);
+			tile.unitOnTile.DealDamage(activeUnit.damage);
+			if(!tile.unitOnTile.isAlive())
+				UnitKilled(tile.unitOnTile);
 		}
 	}
 
-	public void NextTurn()
+	void PositionSoldier(Vector2 position)
 	{
-		if(activeUnit != null)
-			activeUnit.hasBeenAlreadySelected = true;
-			
 		if(activeTeam == Team.red)
 		{
 			activeTeam = Team.blue;
-			GetFirstNotUsedUnit(blueTeam);
+			GetFirstNotUsedUnit(blueArmy);
 		}
 		else
 		{
 			activeTeam = Team.red;
-			GetFirstNotUsedUnit(redTeam);
+			GetFirstNotUsedUnit(redArmy);
 		}
+
+		if(activeUnit == null)
+		{
+			areArmyPositioned = true;
+			Turn();
+			return;
+		}
+
+		var tile = map.map[position];
+		activeUnit.Move(map.getTilePosition(position));
+		activeUnit.position = position;
+		activeUnit.hasBeenAlreadySelected = true;
+
+		tile.state = TileState.occupied;
+		tile.unitOnTile = activeUnit;
+
+		map.HideFreeSpaces();
+	}
+
+	public void Turn()
+	{
+		if(activeUnit != null)
+			activeUnit.hasBeenAlreadySelected = true;
+
+		if(activeTeam == Team.red)
+		{
+			activeTeam = Team.blue;
+			NextTurn(blueArmy);
+
+		}
+		else
+		{
+			activeTeam = Team.red;
+			NextTurn(redArmy);
+		}
+	}
+	
+	void NextTurn(List<Unit> army)
+	{
+		GetFirstNotUsedUnit(army);
 
 		if(activeUnit.isAlive())
 		{
@@ -142,9 +182,10 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	public void GetFirstNotUsedUnit(List<Unit> team)
+	void GetFirstNotUsedUnit(List<Unit> team)
 	{
 		activeUnit = null;
+
 		foreach(Unit enter in team)
 		{
 			if(!enter.hasBeenAlreadySelected)
@@ -159,8 +200,13 @@ public class GameController : MonoBehaviour {
 
 	}
 
-	public void NewTurn(List<Unit> team)
+	void NewTurn(List<Unit> team)
 	{
+		if(!areArmyPositioned)
+		{
+			return;
+		}
+
 		foreach(Unit enter in team)
 		{
 			enter.hasBeenAlreadySelected = false;
@@ -169,23 +215,19 @@ public class GameController : MonoBehaviour {
 		GetFirstNotUsedUnit(team);
 	}
 
-	public void UnitKilled(Unit unit)
+	void UnitKilled(Unit unit)
 	{
 		List<Unit> teamList;
 		if(unit.team == Team.red)
-			teamList = redTeam;
+			teamList = redArmy;
 		else
-			teamList = blueTeam;
+			teamList = blueArmy;
 
 		teamList.Remove(unit);
 		Destroy(unit.gameObject);
 		map.HideFreeSpaces();
-	}
-
-	
+	}	
 }
-
-
 public enum Team
 {
 	blue = 0,

@@ -15,7 +15,7 @@ public class HexController : MonoBehaviour
 		}
 	}
 
-	private TileState _state;
+	private TileState _state = TileState.free;
 	public TileState state
 	{
 		get

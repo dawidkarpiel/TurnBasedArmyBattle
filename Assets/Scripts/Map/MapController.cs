@@ -71,10 +71,21 @@ public class MapController: MonoBehaviour
 				tile.Value.state = TileState.occupied;
 			else
 				tile.Value.state = TileState.free;
-			
 		}
 	}
 
+	public void EnableAllRows(int num)
+	{
+		foreach(KeyValuePair<Vector2,HexController> tile in map)
+		{
+			if(tile.Value.state == TileState.occupied)
+				continue;
+			else if(tile.Key.x == num && tile.Value.state != TileState.occupied)
+				tile.Value.state = TileState.readyToBeOccupied;
+			else if(tile.Value.state != TileState.readyToBeOccupied)
+				tile.Value.state = TileState.free;
+		}
+	}
 	public Vector3 getTilePosition(Vector2 hexPosition)
 	{
 		return map[hexPosition].localPosition;
