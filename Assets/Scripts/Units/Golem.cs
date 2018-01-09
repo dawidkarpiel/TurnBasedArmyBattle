@@ -4,6 +4,5 @@ using UnityEngine;
 
 public class Golem : Unit
 {
-
-
+    //left, if would be needed
 }
