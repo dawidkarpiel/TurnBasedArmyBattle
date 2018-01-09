@@ -37,11 +37,7 @@ public class Unit: MonoBehaviour
 
 		transform.rotation = Quaternion.Euler(lookDirection * 90);
 	}
-
-	void FixedUpdate()
-	{
-	}
-
+	
 	public void GetHit(float damage)
 	{
 		hp -= damage;

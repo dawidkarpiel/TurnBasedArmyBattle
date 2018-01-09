@@ -128,6 +128,7 @@ public class MapController: MonoBehaviour
 				tile.Value.state = TileState.free;
 		}
 	}
+	
 	public Vector3 getTilePosition(Vector2 hexPosition)
 	{
 		return map[hexPosition].localPosition;
