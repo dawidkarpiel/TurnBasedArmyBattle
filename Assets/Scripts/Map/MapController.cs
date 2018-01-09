@@ -55,8 +55,10 @@ public class MapController: MonoBehaviour
 				tile.Value.state = TileState.occupied;
 			else if(distance == -1)
 				tile.Value.state = TileState.free;
-			else if(tile.Value.state == TileState.occupied && tile.Value.unitOnTile.team != map[basePosition].unitOnTile.team && distance <= attackRange+walkRange)
+			else if(tile.Value.state == TileState.occupied && tile.Value.unitOnTile.team != map[basePosition].unitOnTile.team && distance <= attackRange)
 				tile.Value.state = TileState.inAttackRange;
+			else if(tile.Value.state == TileState.occupied)
+				tile.Value.state = TileState.occupied;
 			else if(distance <= walkRange)
 				tile.Value.state = TileState.readyToBeOccupied;
 		}

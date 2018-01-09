@@ -10,6 +10,7 @@ public class Unit: MonoBehaviour{
 	public Vector2 position;
 	public int walkRange;
 	public bool hasBeenAlreadySelected = false;
+	public bool hasAttacked = false;
 	
 	GameController controller;
 	public int moves;
@@ -18,7 +19,6 @@ public class Unit: MonoBehaviour{
 
 	public void DealDamage(float damage)
 	{
-		Debug.Log("damage deal " + damage);
 		hp -= damage;
 		if(hp <= 0)
 		{
@@ -28,14 +28,13 @@ public class Unit: MonoBehaviour{
 
 	public void Die()
 	{
-		Debug.Log("die");
+
 	}
 
 	public void Activate()
 	{
 		moves = walkRange;
-		Debug.Log("activate" + moves);
-
+		hasAttacked = false;
 	} 
 
 	public void Move(Vector3 position, int distance)

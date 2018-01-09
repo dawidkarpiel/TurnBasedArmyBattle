@@ -21,12 +21,21 @@ public class UI : MonoBehaviour
 
 	public GameObject settingsPanel;
 	public GameObject gameplayPanel;
+	public GameObject gameEndPanel;
 	
 	
 	void Start()
 	{
 		settingsPanel.SetActive(true);
 		gameplayPanel.SetActive(false);
+		gameEndPanel.SetActive(false);
+
+		GameController.gameEnded += GameEnd;
+	}
+
+	void OnDestroy()
+	{
+		GameController.gameEnded -= GameEnd;
 	}
 
 	public void StartGame()
@@ -44,10 +53,23 @@ public class UI : MonoBehaviour
 
 		settingsPanel.SetActive(false);
 		gameplayPanel.SetActive(true);
+		gameEndPanel.SetActive(false);
 	}
 
 	public void NextTurn()
 	{
 		gameController.Turn();
+	}
+
+	void GameEnd()
+	{
+		gameEndPanel.SetActive(true);
+		gameplayPanel.SetActive(false);
+	}
+
+	public void RestartGame()
+	{
+		gameEndPanel.SetActive(false);
+		settingsPanel.SetActive(true);
 	}
 }

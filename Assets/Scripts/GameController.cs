@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.Linq;
 
 public class GameController : MonoBehaviour {
 
-	List<Unit> blueArmy;
-	List<Unit> redArmy;
+	public List<Unit> blueArmy;
+	public List<Unit> redArmy;
 
 	[SerializeField]
 	GameObject footmanPrefab;
@@ -18,7 +20,6 @@ public class GameController : MonoBehaviour {
 
 	Unit activeUnit;
 
-
 	public int blueTeamFootmans = 0;
 	public int blueTeamGolems = 0;
 
@@ -29,8 +30,11 @@ public class GameController : MonoBehaviour {
 
 	bool areArmyPositioned = false;
 
+	public static Action gameEnded = delegate {};
+
 	public void InitializeGameplay()
 	{
+		areArmyPositioned = false;
 		map.GetMap(mapSize);
 		AddRedTeamUnits();
 		AddBlueTeamUnits();
@@ -150,7 +154,7 @@ public class GameController : MonoBehaviour {
 		}
 		else if(activeUnit != null && tile.state == TileState.inAttackRange)
 		{
-			AttackPosition(tile);
+			AttackUnit(tile);
 		}
 	}
 	
@@ -251,9 +255,19 @@ public class GameController : MonoBehaviour {
 		GetFirstNotUsedUnit(team);
 	}
 
-	void AttackPosition(HexController tile)
+	void AttackUnit(HexController tile)
 	{
-		tile.unitOnTile.DealDamage(activeUnit.damage);
+		if(!activeUnit.hasAttacked)
+		{
+			tile.unitOnTile.DealDamage(activeUnit.damage);
+			activeUnit.hasAttacked = true;
+			Debug.Log("dealt " + activeUnit.damage + " damage");
+		}
+		else
+		{
+			Debug.Log("you had already attacked");
+		}
+
 
 		if(!tile.unitOnTile.isAlive())
 			UnitKilled(tile.unitOnTile);
@@ -266,19 +280,51 @@ public class GameController : MonoBehaviour {
 		List<Unit> teamList;
 
 		if(unit.team == Team.red)
-			teamList = redArmy;
-		else
 			teamList = blueArmy;
+		else
+			teamList = redArmy;
 
 		map.map[unit.position].unitOnTile = null;
 
-		teamList.Remove(unit);
+		for(int i =0; i < teamList.Count; i++)
+		{
+			Debug.Log(teamList[i].position);
+			
+			if(teamList[i] == unit)
+			{
+				teamList.RemoveAt(i);
+				Debug.Log("removed at " + i);
+			}
+		}
+
 		Destroy(unit.gameObject);
+
 
 		map.ClearTiles();
 
 		Debug.Log("killed");
+
+		CheckVictoryConditions();
 	}	
+
+	void CheckVictoryConditions()
+	{
+		if(redArmy.Count == 0 || blueArmy.Count == 0)
+			EndGame();
+
+	}
+
+	public void EndGame()
+	{
+		blueArmy.Clear();
+		redArmy.Clear();
+
+		var children = new List<GameObject>();
+		foreach (Transform child in transform) children.Add(child.gameObject);
+		children.ForEach(child => Destroy(child));
+
+		gameEnded();
+	}
 }
 public enum Team
 {
