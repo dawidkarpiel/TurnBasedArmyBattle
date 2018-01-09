@@ -99,7 +99,6 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	
 	void StartGame()
 	{
 		activeTeam = Team.blue;
@@ -138,15 +137,15 @@ public class GameController : MonoBehaviour {
 	void EnablePositionArmies()
 	{
 		if(activeTeam == Team.red)
-			{
-				map.EnableAllRows(0);
-				map.EnableAllRows(1);
-			}
-			else
-			{
-				map.EnableAllRows((int)mapSize.x - 1);
-				map.EnableAllRows((int)mapSize.x - 2);
-			}
+		{
+			map.EnableAllRows(0);
+			map.EnableAllRows(1);
+		}
+		else
+		{
+			map.EnableAllRows((int)mapSize.x - 1);
+			map.EnableAllRows((int)mapSize.x - 2);
+		}
 	}
 
 	public void TileClicked(Vector2 position)
@@ -154,17 +153,11 @@ public class GameController : MonoBehaviour {
 		var tile = map.map[position];
 
 		if(!areArmyPositioned && tile.state == TileState.readyToBeOccupied)
-		{
 			PositionSoldier(position);
-		}
 		else if(activeUnit != null && tile.state == TileState.readyToBeOccupied)
-		{
 			ChangeUnitPosition(tile, position);
-		}
 		else if(activeUnit != null && tile.state == TileState.inAttackRange)
-		{
 			AttackUnit(tile);
-		}
 	}
 	
 	void ChangeUnitPosition(HexController toTile, Vector2 position)
@@ -207,7 +200,6 @@ public class GameController : MonoBehaviour {
 		{
 			activeTeam = Team.blue;
 			NextTurn(blueArmy);
-
 		}
 		else
 		{
@@ -298,7 +290,6 @@ public class GameController : MonoBehaviour {
 
 		for(int i =0; i < teamList.Count; i++)
 		{
-			
 			if(teamList[i] == unit)
 			{
 				teamList.RemoveAt(i);
