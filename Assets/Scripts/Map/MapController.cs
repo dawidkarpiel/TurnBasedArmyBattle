@@ -4,21 +4,23 @@ using UnityEngine;
 
 public class MapController: MonoBehaviour
 {
-	public GameController controller;
-	public MapGenerator generator;
+	GameController controller;
+	MapGenerator generator;
 
 	public Dictionary<Vector2, HexController> map;
+
+	void Start()
+	{
+		controller = GetComponent<GameController>();
+		generator = GetComponent<MapGenerator>();
+
+	}
 
 	public void GetMap(Vector2 size)
 	{
 		map = new Dictionary<Vector2, HexController>();
 		map = generator.GenerateMap(size);
  	}
-
-	public void SetGenerator(MapGenerator generator)
-	{
-		this.generator = generator;
-	}
 
 	public void ShowRange(Vector2 basePosition)
 	{

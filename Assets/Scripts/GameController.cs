@@ -6,31 +6,40 @@ using System.Linq;
 
 public class GameController : MonoBehaviour {
 
-	public List<Unit> blueArmy;
-	public List<Unit> redArmy;
+
+	List<Unit> blueArmy;
+	List<Unit> redArmy;
 
 	[SerializeField]
 	GameObject footmanPrefab;
 	[SerializeField]
 	GameObject golemPrefab;
 
-	public MapController map;
+	MapController map;
 
 	Team activeTeam;
 
 	Unit activeUnit;
 
+	[HideInInspector]
 	public int blueTeamFootmans = 0;
+	[HideInInspector]
 	public int blueTeamGolems = 0;
-
+	[HideInInspector]
 	public int redTeamFootmans = 0;
+	[HideInInspector]
 	public int redTeamGolems = 0;
-
+	[HideInInspector]
 	public Vector2 mapSize;
 
 	bool areArmyPositioned = false;
 
 	public static Action gameEnded = delegate {};
+
+	void Start()
+	{
+		map = GetComponent<MapController>();
+	}	
 
 	public void InitializeGameplay()
 	{
@@ -175,7 +184,7 @@ public class GameController : MonoBehaviour {
 	void PositionSoldier(Vector2 position)
 	{
 		var tile = map.map[position];
-		activeUnit.Move(map.getTilePosition(position), 0);
+		activeUnit.transform.position = map.getTilePosition(position);
 		activeUnit.position = position;
 		activeUnit.hasBeenAlreadySelected = true;
 
@@ -259,8 +268,8 @@ public class GameController : MonoBehaviour {
 	{
 		if(!activeUnit.hasAttacked)
 		{
-			tile.unitOnTile.DealDamage(activeUnit.damage);
-			activeUnit.hasAttacked = true;
+			activeUnit.Attack();
+			tile.unitOnTile.GetHit(activeUnit.damage);
 			Debug.Log("dealt " + activeUnit.damage + " damage");
 		}
 		else
@@ -272,7 +281,6 @@ public class GameController : MonoBehaviour {
 		if(!tile.unitOnTile.isAlive())
 			UnitKilled(tile.unitOnTile);
 
-		Debug.Log("attack");
 	}
 
 	void UnitKilled(Unit unit)
@@ -286,23 +294,18 @@ public class GameController : MonoBehaviour {
 
 		map.map[unit.position].unitOnTile = null;
 
+		unit.Die();
+
 		for(int i =0; i < teamList.Count; i++)
 		{
-			Debug.Log(teamList[i].position);
 			
 			if(teamList[i] == unit)
 			{
 				teamList.RemoveAt(i);
-				Debug.Log("removed at " + i);
 			}
 		}
 
-		Destroy(unit.gameObject);
-
-
 		map.ClearTiles();
-
-		Debug.Log("killed");
 
 		CheckVictoryConditions();
 	}	
@@ -310,12 +313,28 @@ public class GameController : MonoBehaviour {
 	void CheckVictoryConditions()
 	{
 		if(redArmy.Count == 0 || blueArmy.Count == 0)
-			EndGame();
+			StartCoroutine(victoryCoroutine());
 
+		foreach(Unit soldier in redArmy)
+			soldier.Victory();
+
+		foreach(Unit soldier in blueArmy)
+			soldier.Victory();
+	}
+
+	IEnumerator victoryCoroutine()
+	{
+		while(true)
+		{
+			yield return new WaitForSeconds(4f);
+			EndGame();
+		}
 	}
 
 	public void EndGame()
 	{
+		StopAllCoroutines();
+
 		blueArmy.Clear();
 		redArmy.Clear();
 

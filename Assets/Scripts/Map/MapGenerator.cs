@@ -8,8 +8,12 @@ public class MapGenerator : MonoBehaviour
 	public float y_dif;	
 	public GameObject hex;
 
-	public MapController controller;
+	MapController controller;
 	
+	void Start()
+	{
+		controller = GetComponent<MapController>();
+	}
 	
 	public Dictionary<Vector2, HexController> GenerateMap(Vector2 size)
 	{

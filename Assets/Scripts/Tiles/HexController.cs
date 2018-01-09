@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 public class HexController : MonoBehaviour
 {	
 	
-	public Vector2 hexPosition;
+	Vector2 hexPosition;
 	public Vector3 localPosition
 	{
 		get
@@ -29,12 +29,14 @@ public class HexController : MonoBehaviour
 		}
 	}
 	
+	[HideInInspector]
 	public int distanceToActiveUnit;
 
 	MapController map;
 
 	HexView view;
 
+	[HideInInspector]
 	public Unit unitOnTile;
 
 	public void TileInitialize(Vector2 position, MapController map)
@@ -43,11 +45,6 @@ public class HexController : MonoBehaviour
 		state = TileState.free;
 		this.hexPosition = position;
 		this.map = map;
-	}
-
-	public Vector3 GetTransform()
-	{
-		return this.gameObject.transform.position;
 	}
 
 	void OnMouseDown()
